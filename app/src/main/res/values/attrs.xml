@@ -11,4 +11,9 @@
         <attr name="rightButtonTextColor" format="color"/>
         <attr name="rightButtonBackground" format="color|reference"/>
     </declare-styleable>
+
+    <declare-styleable name="TagsLayout">
+        <attr name="tagVerticalSpace" format="dimension" />
+        <attr name="tagHorizontalSpace" format="dimension" />
+    </declare-styleable>
 </resources>

@@ -14,13 +14,14 @@ import java.util.TimerTask;
 public class MainActivity extends AppCompatActivity {
     private AreaChartsView mAreaChartsView;
     private Timer timer;
-
+    private TagsLayout tagsLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         TopBar topBar = ((TopBar) findViewById(R.id.top_bar));
         mAreaChartsView = (AreaChartsView)findViewById(R.id.area_charts_view);
+        tagsLayout = ((TagsLayout) findViewById(R.id.tags_layout));
         topBar.setTopBarClickListener(new TopBar.TopBarClickListener() {
             @Override
             public void leftClick() {
@@ -33,6 +34,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         initAreaChartsView();
+        insertTags();
+    }
+
+    private void insertTags(){
+        String[] string = {"从我写代码那天起，我就没有打算写代码", "从我写代码那天起", "我就没有打算写代码", "没打算", "写代码"};
+        if (tagsLayout != null) {
+            tagsLayout.addItem(string);
+        }
     }
 
     /**
