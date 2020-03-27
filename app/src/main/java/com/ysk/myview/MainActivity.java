@@ -2,6 +2,8 @@ package com.ysk.myview;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,14 +36,25 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         initAreaChartsView();
-        insertTags();
+        initTags();
     }
 
-    private void insertTags(){
-        String[] string = {"从我写代码那天起，我就没有打算写代码", "从我写代码那天起", "我就没有打算写代码", "没打算", "写代码"};
+    private void initTags(){
+        String[] string = {"从我写代码那天起，我就不打算一直写下去", "因为头发很重要",
+                "没有头发连老婆都找不到", "连老婆都找不到", "找不到","不写代码干什么","不写代码就能找到老婆吗",
+                "不写代码也找不到老婆","那还是写吧"};
         if (tagsLayout != null) {
             tagsLayout.addItem(string);
         }
+        tagsLayout.setOnItemClickListener(new TagsLayout.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view) {
+                if (view instanceof TextView)
+                Toast.makeText(getApplicationContext(),
+                        ((TextView) view).getText().toString()
+                ,Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     /**

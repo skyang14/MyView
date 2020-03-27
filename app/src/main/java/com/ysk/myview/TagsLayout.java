@@ -15,6 +15,11 @@ import android.widget.TextView;
 public class TagsLayout extends ViewGroup {
     private int childHorizontalSpace;
     private int childVerticalSpace;
+    private OnItemClickListener onItemClickListener;
+
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
+    }
 
     public TagsLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -30,6 +35,10 @@ public class TagsLayout extends ViewGroup {
         }
     }
 
+    /**
+     * 需要添加的子项，暂时是String类型的，后面有需要可以根据Item类型改
+     * @param items
+     */
     public void addItem(String[] items) {
         ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.setMargins(5,5,5,5);
@@ -40,6 +49,13 @@ public class TagsLayout extends ViewGroup {
             textView.setTextSize(16f);
             textView.setBackgroundResource(R.drawable.round_square_blue);
             addView(textView, params);
+            textView.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (onItemClickListener != null)
+                        onItemClickListener.onItemClick(v);
+                }
+            });
         }
     }
 
@@ -48,6 +64,7 @@ public class TagsLayout extends ViewGroup {
      */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        //先测量
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         // 获得它的父容器为它设置的测量模式和大小
         int sizeWidth = MeasureSpec.getSize(widthMeasureSpec);
@@ -108,6 +125,7 @@ public class TagsLayout extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        //先在onMeasure测量，后在onLayout摆位置
         int count = getChildCount();
         for (int i = 0; i < count; i++) {
             View child = getChildAt(i);
@@ -134,6 +152,10 @@ public class TagsLayout extends ViewGroup {
         public int right;
         public int bottom;
 
+    }
+
+    public interface OnItemClickListener{
+        void onItemClick(View view);
     }
 }
 
