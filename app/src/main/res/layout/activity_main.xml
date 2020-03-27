@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+<com.ysk.myview.TopBar
+    android:id="@+id/top_bar"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:leftButtonBackground="@android:color/holo_blue_dark"
+    app:title="一个标题"
+    app:leftButtonText="返回"
+    app:leftButtonTextColor="@android:color/white"
+    app:rightButtonBackground="@android:color/holo_green_dark"
+    app:rightButtonText="更多"
+    app:rightButtonTextColor="@android:color/white"
+    app:titleTextColor="@android:color/holo_purple"
+    app:titleTextSize="28dp"
+    />
+
+</LinearLayout>
