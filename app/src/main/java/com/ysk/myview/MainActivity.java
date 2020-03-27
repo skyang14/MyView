@@ -45,16 +45,16 @@ public class MainActivity extends AppCompatActivity {
                 "不写代码也找不到老婆","那还是写吧"};
         if (tagsLayout != null) {
             tagsLayout.addItem(string);
+            tagsLayout.setOnItemClickListener(new TagsLayout.OnItemClickListener() {
+                @Override
+                public void onItemClick(View view) {
+                    if (view instanceof TextView)
+                        Toast.makeText(getApplicationContext(),
+                                ((TextView) view).getText().toString()
+                                ,Toast.LENGTH_SHORT).show();
+                }
+            });
         }
-        tagsLayout.setOnItemClickListener(new TagsLayout.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view) {
-                if (view instanceof TextView)
-                Toast.makeText(getApplicationContext(),
-                        ((TextView) view).getText().toString()
-                ,Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     /**
