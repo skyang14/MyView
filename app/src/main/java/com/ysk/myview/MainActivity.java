@@ -9,6 +9,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -21,6 +22,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initTopBar();
+        initAreaChartsView();
+        initTags();
+        initFlowLayout();
+    }
+
+    private void initTopBar(){
         TopBar topBar = ((TopBar) findViewById(R.id.top_bar));
         mAreaChartsView = (AreaChartsView)findViewById(R.id.area_charts_view);
         tagsLayout = ((TagsLayout) findViewById(R.id.tags_layout));
@@ -35,8 +43,28 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "更多", Toast.LENGTH_SHORT).show();
             }
         });
-        initAreaChartsView();
-        initTags();
+    }
+
+    private void initFlowLayout(){
+        FlowLayout mFlowLayout = (FlowLayout) findViewById(R.id.flow_layout);
+        List<String> list = new ArrayList<>();
+        list.add("java是世界上最强大的语言，没有之一");
+        list.add("javaEE是java最强大的版本，没有之一");
+        list.add("javaME是java最...的版本，没有之一");
+        list.add("c是世界上最入门的语言，有之一");
+        list.add("php是世界上最...的语言");
+        list.add("ios是世界上最流畅的系统，没有之一 ");
+        list.add("c++是世界上最应该掌握的面向对象语言，之一");
+        list.add("c#也是");
+        list.add("Android是世界上最爽的开发系统，没有之一");
+       // mFlowLayout.setAlignByCenter(FlowLayout.AlienState.CENTER);//居中
+        mFlowLayout.setAlignByCenter(FlowLayout.AlienState.LEFT);//左对齐
+        mFlowLayout.setAdapter(list, R.layout.flow_item, new FlowLayout.ItemView<String>() {
+            @Override
+            void getCover(String item, FlowLayout.ViewHolder holder, View inflate, int position) {
+                holder.setText(R.id.tv_label_name,item);
+            }
+        });
     }
 
     private void initTags(){
