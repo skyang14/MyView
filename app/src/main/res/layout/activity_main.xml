@@ -51,7 +51,7 @@
         app:meteorOffsetLeft="-200dp"
         app:meteorOffsetRight="100dp"
         app:meteorOffsetTop="100dp"/>
-    <com.ysk.myview.lyric.LrcView
+    <com.ysk.myview.lrc.LyricView
         android:id="@+id/lyric"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

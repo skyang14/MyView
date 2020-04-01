@@ -8,8 +8,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.ysk.myview.lrc.LrcHelper;
+import com.ysk.myview.lrc.LyricView;
 import com.ysk.myview.lyric.FakePlayer;
-import com.ysk.myview.lyric.LrcView;
 import com.ysk.myview.lyric.Lyric;
 import com.ysk.myview.progressSeekBar.ProgressSeekBarWithText;
 
@@ -38,10 +39,11 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void initLrcView(){
-        LrcView lrcView = ((LrcView) findViewById(R.id.lyric));
-        lrcView.setPlayer(new FakePlayer());
-        lrcView.setLrc(new Lyric().getLyric());
-        lrcView.init();
+        LyricView lyricView = ((LyricView) findViewById(R.id.lyric));
+        lyricView.setLrcData(LrcHelper.parseStr2List(new Lyric().getLyric()));
+        FakePlayer player = new FakePlayer();
+        player.setLyricView(lyricView);
+
     }
 
     private void initProgressSeekbar(){

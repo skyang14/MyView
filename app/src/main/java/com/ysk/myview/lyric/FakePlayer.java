@@ -1,6 +1,6 @@
 package com.ysk.myview.lyric;
 
-import android.util.Log;
+import com.ysk.myview.lrc.LyricView;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -12,9 +12,13 @@ import java.util.TimerTask;
 public class FakePlayer {
     private static final String TAG = "FakePlayer";
     private int currentPostion;
-
+    private LyricView lyricView;
     public int getCurrentPosition(){
         return currentPostion;
+    }
+
+    public void setLyricView(LyricView lyricView) {
+        this.lyricView = lyricView;
     }
 
     public FakePlayer() {
@@ -22,10 +26,15 @@ public class FakePlayer {
             @Override
             public void run() {
                 currentPostion++;
-                Log.e(TAG, "run: position=="+currentPostion );
+                testLyricView(currentPostion);
+               // Log.e(TAG, "run: position=="+currentPostion );
             }
         };
         new Timer().schedule(timerTask,0,1);
+    }
+
+    private void testLyricView(int currentPosition){
+        lyricView.updateTime(currentPosition);
     }
 
 }
