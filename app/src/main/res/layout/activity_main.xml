@@ -2,6 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:background="@drawable/main_bg"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
@@ -23,7 +25,31 @@
     <com.ysk.myview.FlowLayout
         android:id="@+id/flow_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        />
+
+    <com.ysk.myview.progressSeekBar.EasyProgressSeekBar
+        android:layout_width="500dp"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
+    <com.ysk.myview.progressSeekBar.ProgressSeekBarWithText
+        android:id="@+id/progress_bar"
+        android:layout_width="500dp"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
+    <com.ysk.myview.MeteorView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        app:speed="slow"
+        app:maxDistance="450dp"
+        app:numberOfMeteors="3"
+        app:meteorColor="@android:color/holo_blue_bright"
+        app:meteorOffsetBottom="300dp"
+        app:meteorOffsetLeft="-200dp"
+        app:meteorOffsetRight="100dp"
+        app:meteorOffsetTop="100dp"/>
 
     <com.ysk.myview.AreaChartsView
         android:id="@+id/area_charts_view"

@@ -8,6 +8,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.ysk.myview.progressSeekBar.ProgressSeekBarWithText;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -26,6 +28,12 @@ public class MainActivity extends AppCompatActivity {
         initAreaChartsView();
         initTags();
         initFlowLayout();
+        initProgressSeekbar();
+    }
+
+    private void initProgressSeekbar(){
+        ProgressSeekBarWithText progressBar = ((ProgressSeekBarWithText) findViewById(R.id.progress_bar));
+        progressBar.setEvaluates(new String[]{"垃圾","一般","还行","可以","很棒"});
     }
 
     private void initTopBar(){
