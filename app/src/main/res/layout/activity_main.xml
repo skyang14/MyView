@@ -58,7 +58,12 @@
         android:visibility="gone"/>
     <com.ysk.myview.windmillView.WindMillView
         android:layout_width="200dp"
-        android:layout_height="200dp"/>
+        android:layout_height="200dp"
+        android:visibility="gone"/>
+    <com.ysk.myview.fallingView.FallingView
+        android:id="@+id/fallingView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
     <com.ysk.myview.AreaChartsView
         android:id="@+id/area_charts_view"

@@ -1,6 +1,8 @@
 package com.ysk.myview;
 
 import android.content.Context;
+import android.graphics.Paint;
+import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -13,6 +15,26 @@ import androidx.annotation.Nullable;
 
 public class CustomView extends View {
     private static final String TAG = "CustomView";
+    /**
+     * the width of current view.
+     */
+    protected int mViewWidth;
+
+    /**
+     * the height of current view.
+     */
+    protected int mViewHeight;
+
+    /**
+     * default Paint.
+     */
+    protected Paint mDeafultPaint = new Paint();
+
+    /**
+     * default TextPaint
+     */
+    protected TextPaint mDefaultTextPaint = new TextPaint();
+
     public CustomView(Context context) {
         super(context);
     }
@@ -53,5 +75,12 @@ public class CustomView extends View {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        mViewWidth = w;
+        mViewHeight = h;
     }
 }

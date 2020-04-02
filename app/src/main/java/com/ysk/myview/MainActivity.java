@@ -1,6 +1,9 @@
 package com.ysk.myview;
 
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -8,6 +11,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.ysk.myview.fallingView.FallObject;
+import com.ysk.myview.fallingView.FallingView;
 import com.ysk.myview.lrc.LrcHelper;
 import com.ysk.myview.lrc.LyricView;
 import com.ysk.myview.lyric.FakePlayer;
@@ -34,6 +39,34 @@ public class MainActivity extends AppCompatActivity {
         initFlowLayout();
         initProgressSeekbar();
         initLrcView();
+        initFallingView();
+    }
+
+    private void initFallingView(){
+        //绘制雪球bitmap
+        Paint snowPaint = new Paint();
+        snowPaint.setColor(Color.WHITE);
+        snowPaint.setStyle(Paint.Style.FILL);
+        Bitmap bitmap = Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888);
+        Canvas bitmapCanvas = new Canvas(bitmap);
+        bitmapCanvas.drawCircle(25,25,25,snowPaint);
+        //初始化一个雪球样式的fallObject
+        /*FallObject.Builder builder = new FallObject.Builder(bitmap);
+        FallObject fallObject = builder
+                .setSpeed(10)
+                .build();*/
+        FallObject.Builder builder = new FallObject.Builder(getResources().getDrawable(R.drawable.ic_snow));
+        /*FallObject fallObject = builder
+                .setSpeed(10,true)
+                .setSize(50,50,true)
+                .build();*/
+        FallObject fallObject = builder
+                .setSpeed(7,true)
+                .setSize(50,50,true)
+                .setWind(5,true,true)
+                .build();
+        FallingView fallingView = ((FallingView) findViewById(R.id.fallingView));
+        fallingView.addFallObject(fallObject,50);//添加50个雪球对象
     }
 
 
