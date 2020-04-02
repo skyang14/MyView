@@ -54,7 +54,11 @@
     <com.ysk.myview.lrc.LyricView
         android:id="@+id/lyric"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
+    <com.ysk.myview.windmillView.WindMillView
+        android:layout_width="200dp"
+        android:layout_height="200dp"/>
 
     <com.ysk.myview.AreaChartsView
         android:id="@+id/area_charts_view"
