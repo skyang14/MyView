@@ -7,6 +7,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
+    <TextView
+        android:id="@+id/spinner_text_view"
+        android:background="@android:color/white"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:drawableEnd="@drawable/ic_drop_down"
+        />
 <com.ysk.myview.TopBar
     android:id="@+id/top_bar"
     android:layout_width="match_parent"

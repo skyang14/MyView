@@ -4,12 +4,14 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.ysk.myview.fallingView.FallObject;
 import com.ysk.myview.fallingView.FallingView;
@@ -18,6 +20,8 @@ import com.ysk.myview.lrc.LyricView;
 import com.ysk.myview.lyric.FakePlayer;
 import com.ysk.myview.lyric.Lyric;
 import com.ysk.myview.progressSeekBar.ProgressSeekBarWithText;
+import com.ysk.myview.spinner.AbstractSpinnerAdapter;
+import com.ysk.myview.spinner.SpinerPopWindow;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +44,41 @@ public class MainActivity extends AppCompatActivity {
         initProgressSeekbar();
         initLrcView();
         initFallingView();
+        initSpinner();
+    }
+
+    private void initSpinner(){
+        final List<String> nameList = new ArrayList<>();
+        nameList.add("java");
+        nameList.add("C");
+        nameList.add("C++");
+        nameList.add("C#");
+        nameList.add("python");
+        final SpinerPopWindow spinerPopWindow = new SpinerPopWindow(this);
+        spinerPopWindow.refreshData(nameList, 0);
+        final TextView spinnerText = ((TextView) findViewById(R.id.spinner_text_view));
+        final Drawable dropDown = ContextCompat.getDrawable(this,R.drawable.ic_drop_down);
+        final Drawable dropUp =ContextCompat.getDrawable(this,R.drawable.ic_drop_up);
+        spinnerText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                spinerPopWindow.setWidth(spinnerText.getWidth());
+                spinerPopWindow.showAsDropDown(spinnerText);
+                spinnerText.setCompoundDrawablesWithIntrinsicBounds(null,null, dropUp,null);
+            }
+        });
+        spinerPopWindow.setItemListener(new AbstractSpinnerAdapter.OnItemSelectListener() {
+            @Override
+            public void onItemClick(int pos) {
+                spinnerText.setCompoundDrawablesWithIntrinsicBounds(null,null, dropDown,null);
+                spinnerText.setText(nameList.get(pos));
+            }
+
+            @Override
+            public void onDismiss() {
+                spinnerText.setCompoundDrawablesWithIntrinsicBounds(null,null, dropDown,null);
+            }
+        });
     }
 
     private void initFallingView(){
