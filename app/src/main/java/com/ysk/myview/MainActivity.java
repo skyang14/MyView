@@ -45,6 +45,17 @@ public class MainActivity extends AppCompatActivity {
         initLrcView();
        // initFallingView();
         initSpinner();
+        initBallView();
+    }
+
+    private void initBallView(){
+        BallView ballView = ((BallView) findViewById(R.id.ball_view));
+        ArrayList<String> list = new ArrayList<>();
+        for (int i =0;i<10;i++){
+            list.add(String.valueOf(i));
+        }
+        ballView.setData(list);
+//        ballView.requestLayout();
     }
 
     private void initSpinner(){

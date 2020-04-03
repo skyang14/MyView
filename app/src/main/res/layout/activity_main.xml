@@ -13,6 +13,11 @@
         android:visibility="gone"/>
     <com.ysk.myview.bezier.HearView
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
+    <com.ysk.myview.BallView
+        android:id="@+id/ball_view"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"/>
     <TextView
         android:id="@+id/spinner_text_view"

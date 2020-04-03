@@ -193,7 +193,7 @@ public class AdvancePathView extends RelativeLayout {
 
 
     /**
-     * 绘制一个增值器,计算当前属性的值
+     * 绘制一个估值器,计算当前属性的值
      * 获取轨迹
      */
     class TypeE implements TypeEvaluator<PointF> {
