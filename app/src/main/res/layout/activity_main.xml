@@ -18,7 +18,11 @@
     <com.ysk.myview.BallView
         android:id="@+id/ball_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
+    <com.ysk.myview.FloatTimeView
+        android:layout_width="300dp"
+        android:layout_height="300dp"/>
     <TextView
         android:id="@+id/spinner_text_view"
         android:background="@android:color/white"
