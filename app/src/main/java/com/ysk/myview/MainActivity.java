@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         initFlowLayout();
         initProgressSeekbar();
         initLrcView();
-        initFallingView();
+       // initFallingView();
         initSpinner();
     }
 
