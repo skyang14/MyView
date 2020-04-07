@@ -5,14 +5,22 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
+import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  *  Created by yang.shikun on 2020/3/30 15:41
@@ -21,10 +29,13 @@ public abstract class BaseSurfaceView extends SurfaceView implements SurfaceHold
     private HandlerThread mHandlerThread;
     private Handler drawHandler;
     private MsgBuilder builder;
-    private SurfaceHolder holder;
+    protected SurfaceHolder holder;
     protected long UPDATE_RATE = 16;
     protected Paint mPaint;
-    private boolean running = true;
+    protected boolean running = true, isDrawing = false;
+    private List<Runnable> queue;
+    private LifecycleListener listener;
+    private ExecutorService threadPool;
 
     public BaseSurfaceView(Context context) {
         this(context, null);
@@ -47,73 +58,132 @@ public abstract class BaseSurfaceView extends SurfaceView implements SurfaceHold
         holder.addCallback(this);
 
         builder = new MsgBuilder();
+        threadPool = Executors.newCachedThreadPool();
         onInit();
     }
+
+    private static final int BASE_RUN = 207, CALL_RUN = 208, RUN_ON_THREAD = 209;
 
     @Override
     public boolean handleMessage(Message msg) {
         switch (msg.what) {
-            case 207:
+            case BASE_RUN:
                 if (running) {
-                    drawEverything(null);
-                    builder.newMsg().what(207).sendDelay(UPDATE_RATE);
+                    long before = System.currentTimeMillis();
+                    drawEverything(null, null);
+                    long waste = System.currentTimeMillis() - before;
+                    builder.newMsg().what(BASE_RUN).sendDelay(UPDATE_RATE - waste);
                 }
                 break;
-            case 208:
-                drawEverything(msg.obj);
+            case CALL_RUN:
+                if (msg.peekData() != null) {
+                    Bundle bundle = msg.peekData();
+                    Rect dirty = bundle.getParcelable("dirty");
+                    drawEverything(msg.obj, dirty);
+                } else {
+                    drawEverything(msg.obj, null);
+                }
                 break;
-            case 209:
-                new Thread(((Runnable) msg.obj)).start();
+            case RUN_ON_THREAD:
+                threadPool.execute((Runnable) msg.obj);
                 break;
-
         }
         return true;
     }
 
-    private synchronized void drawEverything(Object data) {
-        Canvas canvas = holder.lockCanvas();
-        if (canvas != null) {
-            canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-            if (running) {
-                onRefresh(canvas);
+    private synchronized void drawEverything(Object data, Rect dirty) {
+        dispatchSafeModifyData();
+        isDrawing = true;
+        onDataUpdate();
+        if (dirty != null) {
+            Log.e("wwh", "BaseSurfaceView --> drawEverything: " + dirty);
+            Canvas canvas = holder.lockCanvas(dirty);
+            //todo 第一次会出现问题
+            Log.e("wwh", "BaseSurfaceView --> drawEverything: " + dirty);
+            if (canvas != null) {
+                if (!preventClear()) {
+                    clearCanvas(canvas);
+                }
+                onDrawRect(canvas, data, dirty);
+                if (holder.getSurface().isValid()) {
+                    holder.unlockCanvasAndPost(canvas);
+                }
             }
-            if (data != null) {
-                draw(canvas, data);
-            }
-            if (holder.getSurface().isValid()) {
-                holder.unlockCanvasAndPost(canvas);
+        } else {
+            Canvas canvas = holder.lockCanvas();
+            if (canvas != null) {
+                if (!preventClear()) {
+                    clearCanvas(canvas);
+                }
+                if (running) {
+                    onRefresh(canvas);
+                }
+                if (data != null) {
+                    draw(canvas, data);
+                }
+                if (holder.getSurface().isValid()) {
+                    holder.unlockCanvasAndPost(canvas);
+                }
             }
         }
+        isDrawing = false;
+    }
+
+    private void dispatchSafeModifyData() {
+        if (queue != null && queue.size() > 0 && !isDrawing) {
+            for (Runnable runnable : queue) {
+                runnable.run();
+            }
+            queue.clear();
+        }
+    }
+
+    protected void clearCanvas(Canvas canvas) {
+        canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        Log.e("ysk", "BaseSurfaceView --> surfaceCreated: " );
         mHandlerThread = new HandlerThread("drawThread");
         mHandlerThread.start();
         drawHandler = new Handler(mHandlerThread.getLooper(), this);
+        //解决第一次使用dirty会被改变的问题
+        callDraw("", new Rect());
         onReady();
+        if (listener != null) {
+            listener.onCreate();
+        }
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
+        if (listener != null) {
+            listener.onChanged();
+        }
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        Log.e("ysk", "BaseSurfaceView --> surfaceDestroyed: " );
+        if (running) {
+            stopAnim();
+        }
         drawHandler.removeCallbacksAndMessages(null);
+        if (queue != null && queue.size() > 0) {
+            queue.clear();
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             mHandlerThread.quitSafely();
         } else {
             mHandlerThread.quit();
         }
+        if (listener != null) {
+            listener.onDestroy();
+        }
     }
 
     public void startAnim() {
         running = true;
-        builder.newMsg().what(207).send();
+        builder.newMsg().what(BASE_RUN).send();
     }
 
     public void stopAnim() {
@@ -121,11 +191,50 @@ public abstract class BaseSurfaceView extends SurfaceView implements SurfaceHold
     }
 
     public void callDraw(Object data) {
-        builder.newMsg().obj(data).what(208).send();
+        callDrawDelay(data, 0);
     }
 
+    public void callDrawDelay(Object data, long millis) {
+        builder.newMsg().obj(data).what(CALL_RUN).sendDelay(millis);
+    }
+
+    public void callDraw(Object data, Rect rect) {
+        callDrawDelay(data, rect, 0);
+    }
+
+    public void callDrawDelay(Object data, Rect rect, long millis) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("dirty", rect);
+        builder.newMsg().obj(data).what(CALL_RUN).bundle(bundle).sendDelay(millis);
+    }
+
+    //注意死循环线程
     public void doInThread(Runnable runnable) {
-        builder.newMsg().what(209).obj(runnable).send();
+        builder.newMsg().what(RUN_ON_THREAD).obj(runnable).send();
+    }
+
+    /**
+     * 要随时对list进行操作时用这个
+     *
+     * @param runnable run
+     */
+    public void safeModifyData(Runnable runnable) {
+        if (!isDrawing) {
+            runnable.run();
+        } else {
+            if (queue == null) {
+                queue = new CopyOnWriteArrayList<>();
+            }
+            queue.add(runnable);
+        }
+    }
+
+    protected void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private final class MsgBuilder {
@@ -149,14 +258,19 @@ public abstract class BaseSurfaceView extends SurfaceView implements SurfaceHold
             return this;
         }
 
+        MsgBuilder bundle(Bundle bundle) {
+            checkMessageNonNull();
+            message.setData(bundle);
+            return this;
+        }
+
         void send() {
             sendDelay(0);
         }
 
         private void sendDelay(long millis) {
             checkMessageNonNull();
-            onDataUpdate();
-            drawHandler.sendMessageAtTime(message, millis);
+            drawHandler.sendMessageAtTime(message, millis < 0 ? 10 : SystemClock.uptimeMillis() + millis);
         }
 
         private void checkMessageNonNull() {
@@ -164,17 +278,65 @@ public abstract class BaseSurfaceView extends SurfaceView implements SurfaceHold
                 throw new IllegalStateException("U should call newMsg() before use");
             }
         }
+    }
 
+    public void setListener(LifecycleListener listener) {
+        this.listener = listener;
+    }
+
+    public interface LifecycleListener {
+
+        void onCreate();
+
+        void onChanged();
+
+        void onDestroy();
 
     }
 
+    /**
+     * 用于初始化画笔，基础数据等
+     */
     protected abstract void onInit();
 
+    /**
+     * 此时handler可用，异步加载数据调用doInThread
+     */
     protected abstract void onReady();
 
+    /**
+     * 数据更新，刷新前调用
+     */
     protected abstract void onDataUpdate();
 
+    /**
+     * 绘制内容，用于默认开启的绘图刷新,若不需要则调用stopAnim停止会刷新
+     *
+     * @param canvas 画布
+     */
     protected abstract void onRefresh(Canvas canvas);
 
+    /**
+     * 调用callDraw后触发，根据特定data绘制
+     *
+     * @param canvas 画布
+     * @param data   数据
+     */
     protected abstract void draw(Canvas canvas, Object data);
+
+    /**
+     * 局部刷新
+     *
+     * @param canvas
+     * @param data   数据
+     * @param rect   画布大小
+     */
+    protected abstract void onDrawRect(Canvas canvas, Object data, Rect rect);
+
+    /**
+     * 是否阻止刷新时清空画布
+     *
+     * @return
+     */
+    protected abstract boolean preventClear();
 }

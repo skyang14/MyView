@@ -20,9 +20,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"/>
-    <com.ysk.myview.FloatTimeView
-        android:layout_width="300dp"
-        android:layout_height="300dp"/>
+    <com.ysk.myview.meteor.MeteorViewAnim
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
     <TextView
         android:id="@+id/spinner_text_view"
         android:background="@android:color/white"
@@ -63,7 +63,7 @@
         android:layout_width="500dp"
         android:layout_height="wrap_content"
         android:visibility="gone"/>
-    <com.ysk.myview.MeteorView
+    <com.ysk.myview.meteor.MeteorView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"

@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.graphics.Shader;
 import android.util.AttributeSet;
 
@@ -85,6 +86,16 @@ public class WaveBgView extends BaseSurfaceView {
     @Override
     protected void draw(Canvas canvas, Object data) {
 
+    }
+
+    @Override
+    protected void onDrawRect(Canvas canvas, Object data, Rect rect) {
+
+    }
+
+    @Override
+    protected boolean preventClear() {
+        return false;
     }
 }
 

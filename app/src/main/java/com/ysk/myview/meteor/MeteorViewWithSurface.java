@@ -1,4 +1,4 @@
-package com.ysk.myview;
+package com.ysk.myview.meteor;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -6,19 +6,22 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
+import android.graphics.Rect;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
 
+import com.ysk.myview.BaseSurfaceView;
+import com.ysk.myview.R;
+
 import java.util.Random;
 
-/**
- * 流星
+/**动画  流星
  * Created by yang.shikun on 2020/3/30 15:41
  */
 
-public class MeteorSurface extends BaseSurfaceView {
-    private static final String TAG = "MeteorSurface";
+public class MeteorViewWithSurface extends BaseSurfaceView {
+    private static final String TAG = "MeteorViewWithSurface";
     private static final float C = 0.551915024494f;
     private float mRadius;
     private float mMaxDistance;
@@ -35,7 +38,7 @@ public class MeteorSurface extends BaseSurfaceView {
     private PointF[][] mDataPoints;
     private PointF[][] mCtrlPoints;
     private float mCtrl;
-    private UpdateMeteors[] updateMeteors;
+    private UpdateMeteorThread[] mThreads;
     private Handler mHandler = new Handler();
     private int mWidth;
     private int mHeight;
@@ -45,13 +48,11 @@ public class MeteorSurface extends BaseSurfaceView {
     private int mMeteorR;
     private int mMeteorB;
     private int mMeteorL;
-
-    public MeteorSurface(Context context) {
+    public MeteorViewWithSurface(Context context) {
         super(context);
-        defaultInit();
     }
 
-    public MeteorSurface(Context context, AttributeSet attrs) {
+    public MeteorViewWithSurface(Context context, AttributeSet attrs) {
         super(context, attrs);
         TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.MeteorView);
         mRadius = array.getDimension(R.styleable.MeteorView_meteorRadius, 3);
@@ -65,23 +66,7 @@ public class MeteorSurface extends BaseSurfaceView {
         mMeteorB = array.getDimensionPixelSize(R.styleable.MeteorView_meteorOffsetBottom, 0);
         mMeteorL = array.getDimensionPixelSize(R.styleable.MeteorView_meteorOffsetLeft, 0);
         array.recycle();
-        // setClickable(true);
-        initFields();
-        initPaints();
-        initCoordinates();
-    }
-
-    private void defaultInit() {
-        mRadius = 3;
-        mMaxDistance = 450;
-        mNumberOfMeteors = 3;
-        mColorMeteors = 0x990772A1;
-        mAngle = 40;
-        mSleepTime = 30;
-        mMeteorT = 100;
-        mMeteorR = 100;
-        mMeteorB = 300;
-        mMeteorL = -200;
+       // setClickable(true);
         initFields();
         initPaints();
         initCoordinates();
@@ -99,26 +84,28 @@ public class MeteorSurface extends BaseSurfaceView {
         mOffset = new float[mNumberOfMeteors];
         mDataPoints = new PointF[mNumberOfMeteors][4];
         mCtrlPoints = new PointF[mNumberOfMeteors][8];
-        updateMeteors = new UpdateMeteors[mNumberOfMeteors];
+        mThreads = new UpdateMeteorThread[mNumberOfMeteors];
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
+        Log.e(TAG, "onSizeChanged: " );
         mWidth = w;
         mHeight = h;
+       // startThreads();
     }
 
-    private void startMeteors() {
-        for (int i = 0; i < updateMeteors.length; i++) {
-            if (updateMeteors[i] == null) {
-                updateMeteors[i] = new UpdateMeteors(i);
+    private void startThreads() {
+        for (int i = 0; i < mThreads.length; i++) {
+            if (mThreads[i] == null) {
+                mThreads[i] = new UpdateMeteorThread(i);
                 final int finalI = i;
                 long delayTime = finalI == 0 ? 0 : mRandom.nextInt(1000);
                 mHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        doInThread(updateMeteors[finalI]);
+                        mThreads[finalI].start();
                     }
                 }, delayTime);
             }
@@ -177,16 +164,21 @@ public class MeteorSurface extends BaseSurfaceView {
     }
 
 
+
+
+
+
     @Override
     protected void onDetachedFromWindow() {
-        stopMeteors();
+        stopThread();
         super.onDetachedFromWindow();
     }
 
-    private void stopMeteors() {
-        for (int i = 0; i < updateMeteors.length; i++) {
-            if (updateMeteors[i] != null) {
-                updateMeteors[i] = null;
+    private void stopThread() {
+        for (int i = 0; i < mThreads.length; i++) {
+            if (mThreads[i] != null) {
+                mThreads[i].interrupt();
+                mThreads[i] = null;
             }
         }
     }
@@ -205,11 +197,11 @@ public class MeteorSurface extends BaseSurfaceView {
         return mPath;
     }
 
-    private class UpdateMeteors implements Runnable  {
+    private class UpdateMeteorThread extends Thread {
 
         private final int mIndex;
 
-        UpdateMeteors(int index) {
+        UpdateMeteorThread(int index) {
             mIndex = index;
         }
 
@@ -223,7 +215,7 @@ public class MeteorSurface extends BaseSurfaceView {
                         - mMeteorT);
                 mOffsetX[mIndex] = 0;
                 mOffsetY[mIndex] = 0;
-                Log.d("ysk", "x=" + mX[mIndex] + ", y=" + mY[mIndex]);
+                Log.d("test", "x=" + mX[mIndex] + ", y=" + mY[mIndex]);
                 while (mOffset[mIndex] <= mMaxDistance) {
                     try {
                         mOffsetX[mIndex] += 10;
@@ -265,11 +257,12 @@ public class MeteorSurface extends BaseSurfaceView {
     @Override
     protected void onReady() {
         startAnim();
+        startThreads();
     }
 
     @Override
     protected void onDataUpdate() {
-        startMeteors();
+
     }
 
     @Override
@@ -287,6 +280,16 @@ public class MeteorSurface extends BaseSurfaceView {
     @Override
     protected void draw(Canvas canvas, Object data) {
 
+    }
+
+    @Override
+    protected void onDrawRect(Canvas canvas, Object data, Rect rect) {
+
+    }
+
+    @Override
+    protected boolean preventClear() {
+        return false;
     }
 
 }

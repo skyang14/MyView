@@ -3,6 +3,7 @@ package com.ysk.myview;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 
 import java.util.ArrayList;
@@ -93,6 +94,16 @@ public class WebSurfaceView extends BaseSurfaceView {
     @Override
     protected void draw(Canvas canvas, Object data) {
 
+    }
+
+    @Override
+    protected void onDrawRect(Canvas canvas, Object data, Rect rect) {
+
+    }
+
+    @Override
+    protected boolean preventClear() {
+        return false;
     }
 
     private class WebDot implements Comparable<WebDot> {
